@@ -8,7 +8,9 @@
 | --- | --- |
 | ![Bản đồ nghiêng với nhiễu ở cửa và sát tường](demo/RViz_Truoc.png) | ![Tường thẳng trục, gốc ở góc tường và tuyến năm node](demo/RViz_Sau.png) |
 
-Hai ảnh mô phỏng cách hiển thị trong RViz. Video ghi các thao tác căn tường, đặt gốc, xóa nhiễu và nối node trên giao diện thật. [Xem hoặc tải video demo (MP4, 6 MB)](demo/Map_Topo_Editor_Demo_RViz.mp4).
+Hai ảnh mô phỏng cách hiển thị trong RViz. Video ghi các thao tác căn tường, đặt gốc, xóa nhiễu và nối node trên giao diện thật.
+
+**[Xem demo trên YouTube](https://youtu.be/D-5gV_4eEf4)** · [Tải video MP4 (6 MB)](demo/Map_Topo_Editor_Demo_RViz.mp4)
 
 ## Chạy trên Windows
 
