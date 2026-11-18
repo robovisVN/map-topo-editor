@@ -58,7 +58,7 @@ Bấm **Xoay / tịnh tiến**, **Xóa vùng** hoặc **Topo** để mở nhóm 
 
 1. Mở **Xoay / tịnh tiến**. Gốc thế giới `(0, 0)` được ghim giữa màn hình. Nhập **Bước xoay (°)**, ví dụ `1`, rồi bấm **↶** hoặc **↷** đến khi tường song song với trục ngang hoặc dọc. Giảm bước xuống `0.1` để chỉnh tinh.
 2. Chọn **Đặt gốc**, rồi bấm đúng góc tường muốn dùng làm `(0, 0)`. Điểm này sẽ chuyển về tâm. Nếu cần dịch thêm một khoảng xác định, nhập **Bước dịch (m)** rồi dùng **← → ↑ ↓**. Ví dụ, bước `0.10` dịch bản đồ 10 cm mỗi lần bấm.
-3. Bấm **✓ Áp dụng**. Khi xuất ZIP, app xoay lưới pixel PGM theo góc đã chỉnh, giữ độ phân giải và tính lại gốc trái dưới để YAML có yaw bằng 0. Các node giữ tọa độ thế giới đang hiển thị. Khi thoát nhóm, app khôi phục góc nhìn trước đó.
+3. Bấm **✓ Áp dụng**. Mỗi bước xoay quay các pixel quanh dấu cộng (0, 0). Khung vàng luôn song song với trục X/Y và tự đổi kích thước để bao đủ lưới sau khi xoay. Khi xuất ZIP, PGM có đúng kích thước đang hiển thị, giữ độ phân giải ban đầu và dùng góc trái dưới của khung làm origin với yaw bằng 0. Các node giữ tọa độ thế giới đang hiển thị. Khi thoát nhóm, app khôi phục góc nhìn trước đó.
 
 ### Làm sạch nhiễu bằng Xóa vùng
 

@@ -350,7 +350,9 @@ class MapEditor:
             self.show_error("Không mở được ZIP", error)
 
     def load(self, path, map_image, topology):
-        self.source, self.map_image, self.topology = path, map_image, topology
+        aligned = map_image.aligned_for_export()
+        self.source, self.map_image, self.topology = path, aligned, topology
+        self.pose_source = map_image
         self.selected = self.connection_start = self.drag_start = self.drag_position = None
         self.dirty = False
         self.refresh_map_name()
@@ -403,7 +405,7 @@ class MapEditor:
         if self.map_image is None or self.edit_group:
             return
         self.edit_snapshot = (self.map_image, self.topology, self.dirty, self.selected,
-                              self.scale, self.fit_scale, self.view_offset)
+                              self.scale, self.fit_scale, self.view_offset, self.pose_source)
         if group != "erase":
             self.topology = deepcopy(self.topology)
         self.edit_group = group
@@ -422,11 +424,12 @@ class MapEditor:
     def finish_edit(self, apply):
         if not self.edit_group or (apply and self.erase_vertices):
             return
-        image, topology, was_dirty, selected, scale, fit_scale, offset = self.edit_snapshot
+        image, topology, was_dirty, selected, scale, fit_scale, offset, pose_source = self.edit_snapshot
         if apply:
             self.dirty = self.dirty or was_dirty
         else:
             self.map_image, self.topology, self.dirty = image, topology, was_dirty
+            self.pose_source = pose_source
             self.selected = selected
         if not apply or self.edit_group == "pose":
             self.scale, self.fit_scale, self.view_offset = scale, fit_scale, offset
@@ -464,7 +467,20 @@ class MapEditor:
         self.yaml_origin.set(
             f"Gốc YAML: ({image.origin_x * 1000:.12g}, {image.origin_y * 1000:.12g}) mm"
             f"\nGóc YAML: {math.degrees(image.yaw):.8g}°"
+            f"\nGóc lưới nguồn: {math.degrees(self.pose_source.yaw):.8g}°"
         )
+
+    def update_pose(self, updated):
+        # Always sample the source grid, even across successive pose sessions.
+        aligned = updated.aligned_for_export()
+        # Node coordinates are integer millimetres. Round once from the
+        # session's starting pose so fine rotation steps do not accumulate error.
+        original_topology, original_pose = self.edit_snapshot[1], self.edit_snapshot[-1]
+        topology = deepcopy(original_topology)
+        topology.rebase(original_pose, updated)
+        self.topology = topology
+        self.pose_source, self.map_image = updated, aligned
+        self.refresh_map_name()
 
     def set_world_origin(self, x, y):
         if self.edit_group != "pose":
@@ -472,12 +488,11 @@ class MapEditor:
         if not (0 <= x <= self.map_image.width and 0 <= y <= self.map_image.height):
             return
         try:
-            updated = self.map_image.with_world_origin(x, y, self.map_image.yaw)
-            self.topology.rebase(self.map_image, updated)
-        except ValueError as error:
+            wx, wy = self.map_image.pixel_to_world(x, y)
+            self.update_pose(self.pose_source.transformed_pose(-wx, -wy, 0))
+        except (ValueError, OSError, MemoryError, OverflowError) as error:
             self.show_error("Không thể đặt gốc", error)
             return
-        self.map_image = updated
         self.dirty = True
         self.refresh_origin()
         self.refresh_nodes()
@@ -494,12 +509,10 @@ class MapEditor:
             if not math.isfinite(step) or step <= 0:
                 raise ValueError("Bước chỉnh phải là số hữu hạn lớn hơn 0.")
             angle = math.radians(math.remainder(step, 360)) * turn if turn else 0
-            updated = self.map_image.transformed_pose(dx * step, dy * step, angle)
-            self.topology.rebase(self.map_image, updated)
-        except (ValueError, OverflowError) as error:
+            self.update_pose(self.pose_source.transformed_pose(dx * step, dy * step, angle))
+        except (ValueError, OSError, MemoryError, OverflowError) as error:
             self.show_error("Không thể chỉnh vị trí bản đồ", error)
             return
-        self.map_image = updated
         self.dirty = True
         self.refresh_origin()
         self.refresh_nodes()
@@ -559,6 +572,8 @@ class MapEditor:
             return
         changed = updated is not self.map_image
         self.map_image = updated
+        if changed:
+            self.pose_source = updated
         self.dirty = self.dirty or changed
         self.start_erase_selection()
         self.draw_map()
