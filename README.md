@@ -4,13 +4,13 @@
 
 ## Demo
 
+[![▶ Xem video Map Topo Editor trên YouTube](https://i.ytimg.com/vi/D-5gV_4eEf4/hqdefault.jpg)](https://youtu.be/D-5gV_4eEf4)
+
+[▶ Xem trên YouTube](https://youtu.be/D-5gV_4eEf4) để theo dõi thao tác căn tường, đặt gốc, xóa nhiễu và nối node trên giao diện thật.
+
 | Trước khi chỉnh sửa | Sau khi chỉnh sửa |
 | --- | --- |
-| ![Bản đồ nghiêng với nhiễu ở cửa và sát tường](demo/RViz_Truoc.png) | ![Tường thẳng trục, gốc ở góc tường và tuyến năm node](demo/RViz_Sau.png) |
-
-Hai ảnh mô phỏng cách hiển thị trong RViz. Video ghi các thao tác căn tường, đặt gốc, xóa nhiễu và nối node trên giao diện thật.
-
-**[Xem demo trên YouTube](https://youtu.be/D-5gV_4eEf4)** · [Tải video MP4 (6 MB)](demo/Map_Topo_Editor_Demo_RViz.mp4)
+| ![Mô phỏng RViz trước khi sửa, bản đồ nghiêng và có nhiễu](docs/images/RViz_Truoc.png) | ![Mô phỏng RViz sau khi căn tường, đặt gốc và nối năm node](docs/images/RViz_Sau.png) |
 
 ## Chạy trên Windows
 
