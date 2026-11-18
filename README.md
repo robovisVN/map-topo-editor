@@ -4,7 +4,9 @@
 
 ## Demo
 
-<video controls src="https://raw.githubusercontent.com/robovisVN/map-topo-editor/main/docs/media/map-topo-editor-demo.mp4"></video>
+[![Demo chỉnh bản đồ, xuất ZIP và robot chạy theo tuyến node](docs/media/map-topo-editor-demo.webp)](https://youtu.be/1juWD4ShjoQ)
+
+[Xem video có âm thanh trên YouTube](https://youtu.be/1juWD4ShjoQ) · [Tải video MP4](https://raw.githubusercontent.com/robovisVN/map-topo-editor/main/docs/media/map-topo-editor-demo.mp4)
 
 | Trước khi chỉnh sửa | Sau khi chỉnh sửa |
 | --- | --- |
