@@ -104,6 +104,33 @@ class MapImage:
             math.remainder(self.yaw + angle, math.tau),
         )
 
+    def aligned_for_export(self):
+        """Resample the edited pose onto a world-axis-aligned grid once at export."""
+        if self.yaw == 0:
+            return self
+        c, s = round(self.cos_yaw, 15), round(self.sin_yaw, 15)
+        w, h = self.image.size
+        # Rotated footprint relative to the YAML origin, measured in cells.
+        left = min(0, c * w) + min(0, -s * h)
+        bottom = min(0, s * w) + min(0, c * h)
+        width = math.ceil(abs(c) * w + abs(s) * h)
+        height = math.ceil(abs(s) * w + abs(c) * h)
+        top = bottom + height
+        # Pillow maps output image coordinates (Y down) back into the source.
+        inverse = (c, -s, c * left + s * top, s, c, h + s * left - c * top)
+        free = float(self.metadata.get("free_thresh", 0.196))
+        occupied = float(self.metadata.get("occupied_thresh", 0.65))
+        probability = (free + occupied) / 2
+        inverted = self.metadata.get("negate", 0) in (1, "1")
+        fill = round(255 * (probability if inverted else 1 - probability))
+        if self.metadata.get("mode") == "raw":
+            fill = 255
+        image = self.image.transform((width, height), Image.Transform.AFFINE, inverse,
+                                     Image.Resampling.NEAREST, fillcolor=fill)
+        origin = [self.origin_x + left * self.resolution,
+                  self.origin_y + bottom * self.resolution, 0.0]
+        return self.with_raster(image, {**self.metadata, "origin": origin})
+
     @staticmethod
     def validate_polygon(vertices):
         points = list(dict.fromkeys(vertices))
@@ -310,6 +337,7 @@ def read_package(path):
 
 def write_package(path, map_image, topology):
     name = path.stem
+    map_image = map_image.aligned_for_export()
     topo = topology.to_json_data(name, map_image)
     compressed = compressed_topology(topo)
     metadata = {**map_image.metadata, "image": f"./{name}.pgm", "width": map_image.width, "height": map_image.height}
