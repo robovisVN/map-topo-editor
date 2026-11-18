@@ -6,8 +6,6 @@
 
 https://github.com/user-attachments/assets/ee27abe2-df1c-4366-8e2a-fc776c371a96
 
-Video minh họa cách căn tường, đặt gốc, xóa nhiễu và nối node trên giao diện thật. [Xem trên YouTube](https://youtu.be/D-5gV_4eEf4) · Để mở tab mới, giữ Ctrl (Windows/Linux) hoặc ⌘ (macOS) khi bấm liên kết.
-
 | Trước khi chỉnh sửa | Sau khi chỉnh sửa |
 | --- | --- |
 | ![Mô phỏng RViz trước khi sửa, bản đồ nghiêng và có nhiễu](docs/images/RViz_Truoc.png) | ![Mô phỏng RViz sau khi căn tường, đặt gốc và nối năm node](docs/images/RViz_Sau.png) |
