@@ -4,9 +4,9 @@
 
 ## Demo
 
-[![▶ Xem video Map Topo Editor trên YouTube](https://i.ytimg.com/vi/D-5gV_4eEf4/hqdefault.jpg)](https://youtu.be/D-5gV_4eEf4)
+https://github.com/user-attachments/assets/ee27abe2-df1c-4366-8e2a-fc776c371a96
 
-[▶ Xem trên YouTube](https://youtu.be/D-5gV_4eEf4) để theo dõi thao tác căn tường, đặt gốc, xóa nhiễu và nối node trên giao diện thật.
+Video minh họa cách căn tường, đặt gốc, xóa nhiễu và nối node trên giao diện thật. [Xem trên YouTube](https://youtu.be/D-5gV_4eEf4) · Để mở tab mới, giữ Ctrl (Windows/Linux) hoặc ⌘ (macOS) khi bấm liên kết.
 
 | Trước khi chỉnh sửa | Sau khi chỉnh sửa |
 | --- | --- |
