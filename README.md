@@ -4,7 +4,7 @@
 
 ## Demo
 
-https://github.com/user-attachments/assets/ee27abe2-df1c-4366-8e2a-fc776c371a96
+<video controls src="https://raw.githubusercontent.com/robovisVN/map-topo-editor/main/docs/media/map-topo-editor-demo.mp4"></video>
 
 | Trước khi chỉnh sửa | Sau khi chỉnh sửa |
 | --- | --- |
