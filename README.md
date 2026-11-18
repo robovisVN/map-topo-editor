@@ -4,12 +4,6 @@
 
 ## Demo
 
-[Xem video demo mới trên YouTube](https://youtu.be/1juWD4ShjoQ) · Giữ Ctrl (Windows/Linux) hoặc ⌘ (macOS) khi bấm để mở trong tab mới.
-
-Video minh họa cách căn thẳng tường, cắt lề bản đồ và nối các node thành tuyến. Khi xuất ZIP, các ô chưa xác định còn trong khung được chuyển thành ô trống. Cuối video là cảnh robot di chuyển theo tuyến node.
-
-**Demo phiên bản trước, phát trực tiếp trên GitHub**
-
 https://github.com/user-attachments/assets/ee27abe2-df1c-4366-8e2a-fc776c371a96
 
 | Trước khi chỉnh sửa | Sau khi chỉnh sửa |
