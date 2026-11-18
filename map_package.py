@@ -11,7 +11,7 @@ from tempfile import NamedTemporaryFile
 from zipfile import ZIP_DEFLATED, ZipFile
 
 import yaml
-from PIL import Image, ImageDraw
+from PIL import Image, ImageChops, ImageDraw
 
 
 with Path(__file__).with_name("topo_defaults.json").open(encoding="utf-8") as file:
@@ -147,10 +147,33 @@ class MapImage:
         mask = Image.new("L", self.image.size)
         ImageDraw.Draw(mask).polygon(vertices, fill=255)
         if outside:
-            bounds = mask.getbbox()
-            if bounds is None:
+            if mask.getbbox() is None:
                 raise ValueError("Vùng cần giữ phải giao với bản đồ.")
-            image = Image.new("L", (bounds[2] - bounds[0], bounds[3] - bounds[1]), 205)
+            mode = str(self.metadata.get("mode", "trinary")).lower()
+            fill = 205
+            if mode == "raw":
+                known = [255 if value <= 100 else 0 for value in range(256)]
+                fill = 255
+            elif mode == "scale":
+                # An opaque PGM can encode intermediate occupancy at every grey level.
+                known = [255] * 256
+            else:
+                free = float(self.metadata.get("free_thresh", 0.196))
+                occupied = float(self.metadata.get("occupied_thresh", 0.65))
+                inverted = self.metadata.get("negate", 0) in (1, "1")
+                known = []
+                for value in range(256):
+                    probability = (value if inverted else 255 - value) / 255
+                    known.append(0 if free <= probability <= occupied else 255)
+                if known[fill]:
+                    unknown_values = [i for i, flag in enumerate(known) if not flag]
+                    if not unknown_values:
+                        raise ValueError("Ngưỡng YAML không có mức xám biểu diễn ô chưa xác định.")
+                    fill = unknown_values[len(unknown_values) // 2]
+            bounds = ImageChops.darker(mask, self.image.point(known)).getbbox()
+            if bounds is None:
+                raise ValueError("Vùng chọn chỉ có ô chưa xác định. Hãy chọn cả phần bản đồ cần giữ.")
+            image = Image.new("L", (bounds[2] - bounds[0], bounds[3] - bounds[1]), fill)
             image.paste(self.image.crop(bounds), (0, 0), mask.crop(bounds))
             if image.size != self.image.size:
                 x, y = self.pixel_to_world(bounds[0], bounds[3])
