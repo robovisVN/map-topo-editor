@@ -188,6 +188,27 @@ class MapImage:
             return self
         return self.with_raster(image, self.metadata)
 
+    def with_exported_free_space(self):
+        """Convert unknown cells on the final output grid to free space."""
+        mode = str(self.metadata.get("mode", "trinary")).lower()
+        if mode == "scale":
+            # PGM has no transparency. Intermediate values encode occupancy.
+            return self
+        if mode == "raw":
+            table = [value if value <= 100 else 0 for value in range(256)]
+        else:
+            free = float(self.metadata.get("free_thresh", 0.196))
+            occupied = float(self.metadata.get("occupied_thresh", 0.65))
+            inverted = self.metadata.get("negate", 0) in (1, "1")
+            free_pixel = 0 if inverted else 255
+            table = []
+            for value in range(256):
+                probability = (value if inverted else 255 - value) / 255
+                table.append(free_pixel if free < probability < occupied else value)
+        if not any(count and table[value] != value for value, count in enumerate(self.image.histogram())):
+            return self
+        return self.with_raster(self.image.point(table), self.metadata)
+
     def with_raster(self, image, metadata):
         output = BytesIO()
         image.save(output, format="PPM")
@@ -372,7 +393,7 @@ def read_package(path):
 
 def write_package(path, map_image, topology):
     name = path.stem
-    map_image = map_image.aligned_for_export()
+    map_image = map_image.aligned_for_export().with_exported_free_space()
     topo = topology.to_json_data(name, map_image)
     compressed = compressed_topology(topo)
     metadata = {**map_image.metadata, "image": f"./{name}.pgm", "width": map_image.width, "height": map_image.height}
