@@ -2,6 +2,14 @@
 
 Ứng dụng desktop Python để chỉnh sửa bản đồ ROS dạng YAML/PGM, đặt gốc tọa độ, làm sạch vùng quét và tạo đồ thị node có hướng. Bản đồ và topo có thể lưu thành ZIP để tiếp tục chỉnh sửa.
 
+## Demo
+
+| Trước khi chỉnh sửa | Sau khi chỉnh sửa |
+| --- | --- |
+| ![Bản đồ nghiêng với nhiễu ở cửa và sát tường](demo/RViz_Truoc.png) | ![Tường thẳng trục, gốc ở góc tường và tuyến năm node](demo/RViz_Sau.png) |
+
+Hai ảnh mô phỏng cách hiển thị trong RViz. Video ghi các thao tác căn tường, đặt gốc, xóa nhiễu và nối node trên giao diện thật. [Xem hoặc tải video demo (MP4, 6 MB)](demo/Map_Topo_Editor_Demo_RViz.mp4).
+
 ## Chạy trên Windows
 
 Cài Python 3 có Tkinter. Tải hoặc clone mã nguồn, rồi mở PowerShell trong thư mục chứa `app.py` và chạy:
