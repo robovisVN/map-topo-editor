@@ -6,15 +6,15 @@ from tkinter import filedialog, font, messagebox, simpledialog, ttk
 from zipfile import BadZipFile
 
 import yaml
-from PIL import Image, ImageTk
+from PIL import Image, ImageDraw, ImageTk
 
 from map_package import MapImage, MissingPGM, Topology, point, read_package, write_package
 
 
 FILE_ERRORS = (BadZipFile, OSError, ValueError, yaml.YAMLError)
-MAP_BACKGROUND = "#102e42"
-MAP_POINT = "#9be6ab"
-MAP_FRAME = "#ffda57"
+MAP_BACKGROUND = "#ffffff"
+MAP_POINT = "#27383b"
+MAP_FRAME = "#ae8009"
 NODE_SNAP_PIXELS = 8
 MODES = {
     "view": "Chọn nhóm công cụ để chỉnh sửa bản đồ.",
@@ -114,40 +114,82 @@ class MapEditor:
             for name in ("TkDefaultFont", "TkTextFont", "TkHeadingFont"):
                 font.nametofont(name).configure(family=family)
         self.node_font = font.nametofont("TkDefaultFont")
+        self.node_font.configure(size=10)
+        self.emphasis_font = self.node_font.copy()
+        self.emphasis_font.configure(weight="bold")
         style = ttk.Style(self.root)
         style.theme_use("clam")
-        style.configure("Toolbar.TFrame", background="#e8edf3")
-        style.configure("Toolbar.TLabel", background="#e8edf3", foreground="#25364b")
-        style.configure("Accent.TButton", background="#17664f", foreground="white", padding=(12, 5))
-        style.map("Accent.TButton", background=[("disabled", "#dce4eb"), ("active", "#1d7d62")],
-                  foreground=[("disabled", "#667485"), ("!disabled", "white")])
+        self.root.configure(background="#e6edf1")
+        style.configure(".", background="#ffffff", foreground="#13212d", font=self.node_font, bordercolor="#c8d6d9",
+                        focuscolor="#0e85c4")
+        style.configure("Toolbar.TFrame", background="#364956")
+        style.configure("Toolbar.TLabel", background="#364956", foreground="white", font=self.emphasis_font)
+        style.configure("Sidebar.TFrame", background="white", relief="solid", borderwidth=1)
+        style.configure("Treeview", fieldbackground="white", rowheight=self.node_font.metrics("linespace") + 9)
+        style.configure("Treeview.Heading", background="#364956", foreground="#ffffff",
+                        font=self.emphasis_font, padding=(4, 5))
+        style.map("Treeview.Heading", background=[("active", "#456477")], foreground=[("active", "white")])
+        style.map("Treeview", background=[("selected", "#086793")], foreground=[("selected", "#ffffff")])
+        self.button_images = []
+        for name, normal, border, hover, pressed, ink in (
+            ("TButton", "#edf7fc", "#5385a0", "#cceaf8", "#a8dced", "#12394f"),
+            ("Accent.TButton", "#086793", "#086793", "#075779", "#064661", "#ffffff"),
+        ):
+            def rounded_tile(fill, outline):
+                tile = Image.new("RGBA", (84, 84))
+                ImageDraw.Draw(tile).rounded_rectangle((1, 1, 82, 82), radius=24,
+                                                       fill=fill, outline=outline, width=3)
+                photo = ImageTk.PhotoImage(tile.resize((28, 28), Image.Resampling.LANCZOS), master=self.root)
+                self.button_images.append(photo)
+                return photo
+
+            element = "Local." + name + ".surface"
+            style.element_create(element, "image", rounded_tile(normal, border),
+                                 ("disabled", "selected", rounded_tile("#364956", "#364956")),
+                                 ("disabled", rounded_tile("#eef0f1", "#e3e6e8")),
+                                 ("pressed", rounded_tile(pressed, border)),
+                                 ("active", rounded_tile(hover, border)), border=9, sticky="nsew")
+            style.layout(name, [(element, {"sticky": "nsew", "children": [
+                ("Button.focus", {"sticky": "nsew", "children": [
+                    ("Button.padding", {"sticky": "nsew", "children": [
+                        ("Button.label", {"sticky": "nsew"})]})]})]})])
+            style.configure(name, foreground=ink, font=self.emphasis_font, padding=(5, 2), anchor="center")
+            style.map(name, foreground=[("disabled", "selected", "#ffffff"),
+                                         ("disabled", "#646e74"), ("!disabled", ink)],
+                      font=[("disabled", "selected", self.emphasis_font), ("disabled", self.node_font)])
 
         files = ttk.Frame(self.root, style="Toolbar.TFrame", padding=(12, 9))
-        files.pack(fill="x")
+        files.pack(fill="x", padx=10, pady=(9, 0))
+        tk.Frame(self.root, background="#24a3d6", height=3).pack(fill="x", padx=10, pady=(0, 5))
         self.open_yaml_button = ttk.Button(files, text="Mở YAML…", command=self.open_yaml)
         self.open_yaml_button.pack(side="left")
         self.open_zip_button = ttk.Button(files, text="Mở ZIP…", command=self.open_zip)
         self.open_zip_button.pack(side="left", padx=(8, 14))
-        ttk.Label(files, textvariable=self.map_name, style="Toolbar.TLabel").pack(side="left")
         self.export_button = ttk.Button(files, text="Xuất ZIP…", style="Accent.TButton", command=self.export_zip)
         self.export_button.pack(side="right")
+        ttk.Label(files, textvariable=self.map_name, style="Toolbar.TLabel").pack(side="left")
         self.export_button.state(["disabled"])
 
         tools = ttk.Frame(self.root, padding=(12, 6))
-        tools.pack(fill="x")
+        tools.pack(fill="x", padx=10)
         self.group_buttons = {}
         for key, label in (("topo", "Topo"), ("pose", "Xoay / tịnh tiến"), ("erase", "Xóa vùng")):
-            button = ttk.Button(tools, text=label, command=lambda group=key: self.begin_edit(group))
+            # Reserve room for the bold label even when Tk measures the disabled font.
+            digit_width = min(self.node_font.measure("0"), self.emphasis_font.measure("0"))
+            min_chars = math.ceil(self.emphasis_font.measure(label) / digit_width) + 2
+            button = ttk.Button(tools, text=label, width=-min_chars,
+                                command=lambda group=key: self.begin_edit(group))
             button.pack(side="left", padx=(0, 6))
             self.group_buttons[key] = button
         ttk.Button(tools, text="Vừa khung", command=self.fit_map).pack(side="right")
         self.cancel_button = ttk.Button(tools, text="✕ Hủy", command=lambda: self.finish_edit(False))
         self.cancel_button.pack(side="right", padx=6)
-        self.apply_button = ttk.Button(tools, text="✓ Áp dụng", command=lambda: self.finish_edit(True))
+        self.apply_button = ttk.Button(tools, text="✓ Áp dụng", style="Accent.TButton",
+                                       command=lambda: self.finish_edit(True))
         self.apply_button.pack(side="right")
 
         panels = ttk.Frame(self.root, padding=(12, 0, 12, 6))
-        panels.pack(fill="x")
+        panels.pack(fill="x", padx=10, pady=(0, 6))
         self.edit_panels = {key: ttk.Frame(panels) for key in self.group_buttons}
         topo_tools = self.edit_panels["topo"]
         for label, mode in (("Chọn / di chuyển", "select"), ("Thêm node", "add"), ("Nối node", "connect")):
@@ -195,6 +237,11 @@ class MapEditor:
 
         footer = ttk.Frame(self.root, padding=(12, 7))
         footer.pack(side="bottom", fill="x")
+        with Image.open(Path(__file__).with_name("robovis-logo.png")) as source:
+            logo = source.convert("RGBA")
+        logo.thumbnail((82, 18), Image.Resampling.LANCZOS)
+        self.brand_logo = ImageTk.PhotoImage(logo, master=self.root)
+        ttk.Label(footer, image=self.brand_logo).pack(side="right", padx=(12, 0))
         ttk.Label(footer, textvariable=self.status).pack(side="left")
         ttk.Label(footer, textvariable=self.cursor_position).pack(side="right")
 
@@ -205,9 +252,9 @@ class MapEditor:
         self.canvas = tk.Canvas(body, background=MAP_BACKGROUND, highlightthickness=0, takefocus=True)
         self.canvas.grid(row=0, column=0, sticky="nsew")
 
-        sidebar = ttk.Frame(body, padding=(12, 0, 0, 0))
-        sidebar.grid(row=0, column=1, sticky="nsew")
-        ttk.Label(sidebar, textvariable=self.yaml_origin, foreground="#6b3890", wraplength=246).pack(anchor="w")
+        sidebar = ttk.Frame(body, style="Sidebar.TFrame", padding=(10, 8))
+        sidebar.grid(row=0, column=1, sticky="nsew", padx=(8, 0))
+        ttk.Label(sidebar, textvariable=self.yaml_origin, foreground="#36566b", wraplength=246).pack(anchor="w")
         ttk.Label(sidebar, textvariable=self.summary).pack(anchor="w", pady=(2, 6))
         node_frame = ttk.Frame(sidebar)
         node_frame.pack(fill="both", expand=True)
@@ -232,7 +279,7 @@ class MapEditor:
         edge_frame = ttk.Frame(sidebar)
         edge_frame.pack(fill="x")
         self.edge_list = tk.Listbox(edge_frame, height=5, exportselection=False, borderwidth=0, highlightthickness=1,
-                                    highlightbackground="#b9c4cf", selectbackground="#17664f", selectforeground="white")
+                                    highlightbackground="#b9c4cf", selectbackground="#086793", selectforeground="white")
         edge_scroll = ttk.Scrollbar(edge_frame, orient="vertical", command=self.edge_list.yview)
         self.edge_list.configure(yscrollcommand=edge_scroll.set)
         edge_scroll.pack(side="right", fill="y")
@@ -339,7 +386,7 @@ class MapEditor:
         active = self.edit_group
         for group, button in self.group_buttons.items():
             button.state(["!disabled" if self.map_image and not active else "disabled"])
-            button.state(["pressed" if group == active else "!pressed"])
+            button.state(["selected" if group == active else "!selected"])
         for button in (self.open_yaml_button, self.open_zip_button):
             button.state(["disabled" if active else "!disabled"])
         self.export_button.state(["!disabled" if self.map_image and not active else "disabled"])
@@ -530,7 +577,7 @@ class MapEditor:
         if self.map_image is None:
             self.canvas.delete("placeholder")
             self.canvas.create_text(self.canvas.winfo_width() / 2, self.canvas.winfo_height() / 2,
-                                    text="Mở YAML hoặc ZIP để hiển thị bản đồ", fill="#cfdeeb", tags="placeholder")
+                                    text="Mở YAML hoặc ZIP để hiển thị bản đồ", fill="#586a75", tags="placeholder")
         else:
             self.draw_map()
 
@@ -622,13 +669,13 @@ class MapEditor:
             inset = min(9 / length, 0.19)
             dx, dy = (x2 - x1) * inset, (y2 - y1) * inset
             arrow = ("both" if reverse else "last") if length >= 25 else "none"
-            color = "#6ee2ff" if self.selected in (source, target) else "#7facc4"
+            color = "#086793" if self.selected in (source, target) else "#537d95"
             self.canvas.create_line(x1 + dx, y1 + dy, x2 - dx, y2 - dy, width=2,
                                     fill=color, arrow=arrow, arrowshape=(8, 10, 4), tags="graph")
         for node_id, (x, y) in positions.items():
             selected = node_id in (self.selected, self.connection_start)
             radius = 7 if selected else 5
-            color = "#eaab48" if selected else "#3c91ce"
+            color = "#eaab48" if selected else "#0e85c4"
             self.canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fill=color,
                                     outline="white", width=1, tags="graph")
         self.draw_origins()
@@ -636,9 +683,9 @@ class MapEditor:
         if len(vertices) > 1:
             outline = vertices + [vertices[0]] if self.erase_closed or self.erase_anchor else vertices
             self.canvas.create_line(*[value for vertex in outline for value in vertex],
-                                    fill="#78edaa", width=2, tags="graph")
+                                    fill="#087cb3", width=2, tags="graph")
         for x, y in vertices:
-            self.canvas.create_oval(x - 3, y - 3, x + 3, y + 3, fill="#78edaa",
+            self.canvas.create_oval(x - 3, y - 3, x + 3, y + 3, fill="#087cb3",
                                     outline=MAP_BACKGROUND, tags="graph")
         if self.mode.get() == "select" and self.selected in self.topology.nodes:
             if self.drag_position is None:
@@ -658,7 +705,7 @@ class MapEditor:
         if (image.origin_x, image.origin_y) == (0, 0):
             markers[0] = ((0, image.height), "Gốc map và YAML (0, 0)", MAP_FRAME, "world_origin")
         else:
-            markers.append(((0, image.height), "Gốc YAML", "#d4a9f2", "yaml_origin"))
+            markers.append(((0, image.height), "Gốc YAML", "#80549c", "yaml_origin"))
 
         view_width, view_height = self.canvas.winfo_width(), self.canvas.winfo_height()
         label_height = self.node_font.metrics("linespace") + 6
@@ -780,7 +827,7 @@ class MapEditor:
         x, y = self.pixel_to_screen(*self.map_image.mm_to_pixel(*coordinate))
         width, height = self.canvas.winfo_width(), self.canvas.winfo_height()
         for line, snapped in (((x, 0, x, height), aligned[0]), ((0, y, width, y), aligned[1])):
-            self.canvas.create_line(*line, fill="#83edb1" if snapped else "#a8bbca",
+            self.canvas.create_line(*line, fill="#087cb3" if snapped else "#a8bbca",
                                     dash=() if snapped else (4, 4), tags=tag)
         label = f"({coordinate[0]}, {coordinate[1]}) mm"
         label_width = self.node_font.measure(label) + 12
@@ -789,7 +836,7 @@ class MapEditor:
         top = max(2, min(y - label_height - 6, height - label_height - 2))
         self.canvas.create_rectangle(left, top, left + label_width, top + label_height,
                                      fill=MAP_BACKGROUND, outline="#a8bbca", tags=tag)
-        self.canvas.create_text(left + 6, top + 3, text=label, fill="#edf7ff",
+        self.canvas.create_text(left + 6, top + 3, text=label, fill="#253f49",
                                 font=self.node_font, anchor="nw", tags=tag)
 
     def hit_node(self, x, y):

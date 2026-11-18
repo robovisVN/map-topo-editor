@@ -50,7 +50,7 @@ Mở YAML sẽ tạo một topo trống. Để tiếp tục công việc đã l�
 
 ## 2. Quan sát và chỉnh sửa
 
-Khung vàng bao toàn bộ kích thước ảnh. Trên nền tối, các pixel đen của PGM hiện thành điểm sáng. Đưa chuột lên ảnh để đọc tọa độ thế giới theo mm. Kéo chuột phải để dịch góc nhìn, cuộn để zoom tại con trỏ, hoặc bấm **Vừa khung** để xem toàn bản đồ.
+Khung vàng bao toàn bộ kích thước ảnh. Các pixel đen của PGM hiện thành điểm tối trên nền trắng. Đưa chuột lên ảnh để đọc tọa độ thế giới theo mm. Kéo chuột phải để dịch góc nhìn, cuộn để zoom tại con trỏ, hoặc bấm **Vừa khung** để xem toàn bản đồ.
 
 Bấm **Xoay / tịnh tiến**, **Xóa vùng** hoặc **Topo** để mở nhóm công cụ tương ứng. Trong mỗi nhóm, **✓ Áp dụng** giữ thay đổi trong phiên làm việc. **✕ Hủy** hoặc **Esc** hoàn tác các thao tác kể từ lúc mở nhóm đó. Cuối phiên, dùng **Xuất ZIP…** để ghi ra đĩa.
 
