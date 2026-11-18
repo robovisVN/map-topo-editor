@@ -574,6 +574,8 @@ class MapEditor:
         self.map_image = updated
         if changed:
             self.pose_source = updated
+            self.refresh_map_name()
+            self.refresh_origin()
         self.dirty = self.dirty or changed
         self.start_erase_selection()
         self.draw_map()

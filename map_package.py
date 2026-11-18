@@ -144,11 +144,23 @@ class MapImage:
     def with_erased_polygon(self, vertices, outside):
         """Rasterize the polygon within the image and erase the chosen side."""
         self.validate_polygon(vertices)
-        mask = Image.new("L", self.image.size, 255 if outside else 0)
-        ImageDraw.Draw(mask).polygon(vertices, fill=0 if outside else 255)
-        image = self.image.copy()
-        free_pixel = 0 if self.metadata.get("negate", 0) in (1, "1") else 255
-        image.paste(205 if outside else free_pixel, (0, 0, self.width, self.height), mask)
+        mask = Image.new("L", self.image.size)
+        ImageDraw.Draw(mask).polygon(vertices, fill=255)
+        if outside:
+            bounds = mask.getbbox()
+            if bounds is None:
+                raise ValueError("Vùng cần giữ phải giao với bản đồ.")
+            image = Image.new("L", (bounds[2] - bounds[0], bounds[3] - bounds[1]), 205)
+            image.paste(self.image.crop(bounds), (0, 0), mask.crop(bounds))
+            if image.size != self.image.size:
+                x, y = self.pixel_to_world(bounds[0], bounds[3])
+                metadata = {**self.metadata, "origin": [x, y, self.yaw],
+                            "width": image.width, "height": image.height}
+                return self.with_raster(image, metadata)
+        else:
+            image = self.image.copy()
+            free_pixel = 0 if self.metadata.get("negate", 0) in (1, "1") else 255
+            image.paste(free_pixel, (0, 0, self.width, self.height), mask)
         if image.tobytes() == self.image.tobytes():
             return self
         return self.with_raster(image, self.metadata)

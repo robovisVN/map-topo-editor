@@ -64,7 +64,7 @@ Bấm **Xoay / tịnh tiến**, **Xóa vùng** hoặc **Topo** để mở nhóm 
 
 1. Mở **Xóa vùng**, chọn **Đa giác** hoặc **Chữ nhật**, rồi bấm **Bắt đầu chọn**.
 2. Với **Đa giác**, bấm chuột trái để thêm từng đỉnh. Cần ít nhất ba đỉnh khác nhau tạo thành vùng có diện tích. Bấm chuột phải tại chỗ để khép vùng. Với **Chữ nhật**, giữ chuột trái tại một góc, kéo tới góc đối diện rồi thả.
-3. Kiểm tra đường viền. Để dọn một cụm nhiễu trong lối đi, khoanh cụm đó rồi bấm **Xóa trong**. Toàn bộ ô trong vùng trở thành ô trống (*free*), kể cả ô chưa xác định. Để giữ mặt bằng và bỏ các vệt quét quanh nó, khoanh phần cần giữ rồi bấm **Xóa ngoài**. Các pixel bên ngoài nhận giá trị xám 205. Hai thao tác giữ kích thước ảnh và các node hiện có.
+3. Kiểm tra đường viền. Để dọn một cụm nhiễu trong lối đi, khoanh cụm đó rồi bấm **Xóa trong**. Toàn bộ ô trong vùng trở thành ô trống (*free*), kể cả ô chưa xác định. Để giữ mặt bằng và bỏ các vệt quét quanh nó, khoanh phần cần giữ rồi bấm **Xóa ngoài**. **Xóa ngoài** cắt ảnh và thu khung vàng về hình chữ nhật nhỏ nhất bao phần vùng chọn nằm trong bản đồ. Với đa giác, phần trong khung nhưng ngoài đa giác được tô xám 205. App cập nhật origin để các pixel còn lại giữ tọa độ thế giới. Các node giữ nguyên tọa độ.
 4. Sau mỗi lượt xóa, có thể vẽ ngay vùng kế tiếp. Nếu vẽ sai đường viền, bấm **Hủy vùng** rồi **Bắt đầu chọn** lại. **Hủy vùng** chỉ bỏ vùng đang vẽ. Để hoàn tác cả những lượt đã xóa trong nhóm, bấm **✕ Hủy**. Khi đã hài lòng với kết quả, bấm **✓ Áp dụng**.
 
 ### Đặt node và tạo tuyến di chuyển
