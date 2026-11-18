@@ -4,12 +4,6 @@
 
 ## Demo
 
-[Xem demo mới trên YouTube (41 giây)](https://youtu.be/EXfgL3NgL9E) · Giữ Ctrl (Windows/Linux) hoặc ⌘ (macOS) khi bấm để mở tab mới.
-
-Video bắt đầu với bản đồ SLAM bị nghiêng. Bạn có thể theo dõi cách căn tường theo trục tọa độ, đặt gốc ở góc tường, xóa nhiễu rồi nối các node thành tuyến. Trong 10 giây cuối, robot chạy theo tuyến để minh họa cách dùng các node khi điều phối robot thực tế.
-
-**Xem ngay trên GitHub** · Bản demo trước, tập trung vào các thao tác trong trình biên tập.
-
 https://github.com/user-attachments/assets/ee27abe2-df1c-4366-8e2a-fc776c371a96
 
 | Trước khi chỉnh sửa | Sau khi chỉnh sửa |
